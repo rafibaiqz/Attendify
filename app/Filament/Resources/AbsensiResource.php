@@ -34,9 +34,12 @@ class AbsensiResource extends Resource
     {
         return $form
         ->schema([
-            TextInput::make('description')
+            TextInput::make('code_ticket')
                 ->required()
-                ->maxLength(255),
+                ->label('Code Ticket'),
+            TextInput::make('title_ticket')
+                ->required()
+                ->label('Tittle Ticket'),
             DateTimePicker::make('mulai_kerja')
                 ->required()
                 ->placeholder('Pilih waktu mulai kerja'),

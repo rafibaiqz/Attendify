@@ -10,10 +10,18 @@ class Absensi extends Model
     use HasFactory;
 
     protected $fillable = [
-        'description',
+        'code_ticket',
+        'title_ticket',
         'mulai_kerja',
         'akhir_kerja',
+        'description',
     ];
+
+    public function save(array $options = [])
+    {
+        $this->description = "[{$this->code_ticket}] {$this->title_ticket}";
+        parent::save($options);
+    }
 
     // Menghitung total jam kerja
     public function getTotalHoursAttribute(): float
