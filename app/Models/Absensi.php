@@ -15,15 +15,15 @@ class Absensi extends Model
         'akhir_kerja',
     ];
 
-    /**
-     * Get the total hours worked.
-     *
-     * @return float
-     */
+    // Menghitung total jam kerja
     public function getTotalHoursAttribute(): float
     {
-        $mulaiKerja = Carbon::parse($this->mulai_kerja);
-        $akhirKerja = Carbon::parse($this->akhir_kerja);
-        return $akhirKerja->diffInHours($mulaiKerja) + ($akhirKerja->diffInMinutes($mulaiKerja) % 60) / 60;
+        if ($this->mulai_kerja && $this->akhir_kerja) {
+            $mulaiKerja = \Carbon\Carbon::parse($this->mulai_kerja);
+            $akhirKerja = \Carbon\Carbon::parse($this->akhir_kerja);
+            return $akhirKerja->diffInHours($mulaiKerja) + ($akhirKerja->diffInMinutes($mulaiKerja) % 60) / 60;
+        }
+        return 0;
     }
+    
 }

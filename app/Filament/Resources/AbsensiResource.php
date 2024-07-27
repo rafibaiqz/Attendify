@@ -17,6 +17,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\NumberInput;
 use Filament\Forms\Components\DateTimePicker;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\AbsensiExport;
+use Filament\Tables\Actions\BulkAction;
+use Illuminate\Support\Collection;
+use App\Mail\AbsensiNotification;
+use Illuminate\Support\Facades\Mail;
+
 class AbsensiResource extends Resource
 {
     protected static ?string $model = Absensi::class;
@@ -50,8 +57,6 @@ class AbsensiResource extends Resource
                 TextColumn::make('total_hours')
                     ->label('Total Jam Kerja')
                     ->formatStateUsing(fn ($record) => number_format($record->total_hours, 2)),
-                TextColumn::make('created_at')->dateTime(),
-                TextColumn::make('updated_at')->dateTime(),
             ])
             ->filters([
                 //
@@ -62,6 +67,17 @@ class AbsensiResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    BulkAction::make('exportToExcel')
+                        ->label('Export to Excel')
+                        ->action(function (Collection $records) {
+                            // Convert the Eloquent collection to an array
+                            $recordsArray = $records->map(function ($record) {
+                                return $record->toArray();
+                            });
+    
+                            $export = new AbsensiExport($recordsArray);
+                            return Excel::download($export, 'absensi.xlsx');
+                        }),
                 ]),
             ]);
     }
