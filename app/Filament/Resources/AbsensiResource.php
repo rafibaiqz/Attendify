@@ -23,6 +23,7 @@ use Filament\Tables\Actions\BulkAction;
 use Illuminate\Support\Collection;
 use App\Mail\AbsensiNotification;
 use Illuminate\Support\Facades\Mail;
+use PhpParser\Node\Stmt\Label;
 
 class AbsensiResource extends Resource
 {
@@ -34,6 +35,8 @@ class AbsensiResource extends Resource
     {
         return $form
         ->schema([
+            TextInput::make('extra_desc')
+                ->label('Absensi Tambahan'),
             TextInput::make('code_ticket')
                 ->required()
                 ->label('Code Ticket'),
@@ -44,7 +47,7 @@ class AbsensiResource extends Resource
                 ->required()
                 ->placeholder('Pilih waktu mulai kerja'),
             DateTimePicker::make('akhir_kerja')
-                ->required()
+            ->after('mulai_kerja')
                 ->placeholder('Pilih waktu akhir kerja'),
         ]);
     }
@@ -53,13 +56,14 @@ class AbsensiResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id')->sortable(),
-                TextColumn::make('description')->searchable(),
-                TextColumn::make('mulai_kerja')->dateTime(),
-                TextColumn::make('akhir_kerja')->dateTime(),
-                TextColumn::make('total_hours')
-                    ->label('Total Jam Kerja')
-                    ->formatStateUsing(fn ($record) => number_format($record->total_hours, 2)),
+                TextColumn::make('extra_desc')->label('Absensi Tambahan'),
+                TextColumn::make('description')->label('Ticket')->searchable(),
+                TextColumn::make('mulai_kerja')->label('Mulai Kerja')->dateTime(),
+                TextColumn::make('akhir_kerja')->label('Selesai Kerja')->dateTime(),
+                TextColumn::make('total_hours')->label('Total Jam Kerja')
+    ->label('Total Jam Kerja')
+    ->formatStateUsing(fn ($record) => $record->total_hours),
+
             ])
             ->filters([
                 //
@@ -84,6 +88,14 @@ class AbsensiResource extends Resource
                 ]),
             ]);
     }
+
+    public function rules()
+{
+    return [
+        'mulai_kerja' => 'required|date_format:Y-m-d H:i:s',
+        'akhir_kerja' => 'required|date_format:Y-m-d H:i:s|after:mulai_kerja',
+    ];
+}
 
     public static function getRelations(): array
     {

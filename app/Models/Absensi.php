@@ -15,6 +15,7 @@ class Absensi extends Model
         'mulai_kerja',
         'akhir_kerja',
         'description',
+        'extra_desc',
     ];
 
     public function save(array $options = [])
@@ -23,15 +24,25 @@ class Absensi extends Model
         parent::save($options);
     }
 
-    // Menghitung total jam kerja
-    public function getTotalHoursAttribute(): float
+    public static function rules()
     {
-        if ($this->mulai_kerja && $this->akhir_kerja) {
-            $mulaiKerja = \Carbon\Carbon::parse($this->mulai_kerja);
-            $akhirKerja = \Carbon\Carbon::parse($this->akhir_kerja);
-            return $akhirKerja->diffInHours($mulaiKerja) + ($akhirKerja->diffInMinutes($mulaiKerja) % 60) / 60;
-        }
-        return 0;
+        return [
+            'mulai_kerja' => 'required|date_format:Y-m-d H:i:s',
+            'akhir_kerja' => 'required|date_format:Y-m-d H:i:s|after:mulai_kerja',
+        ];
     }
     
+
+public function getTotalHoursAttribute()
+{
+    if ($this->mulai_kerja && $this->akhir_kerja) {
+        $start = Carbon::parse($this->mulai_kerja);
+        $end = Carbon::parse($this->akhir_kerja);
+        $diffInHours = $end->diffInHours($start);
+        $diffInMinutes = $end->diffInMinutes($start) % 60;
+        return sprintf("%d jam %d menit", $diffInHours, $diffInMinutes);
+    }
+    return "0 jam 0 menit";
+}
+
 }

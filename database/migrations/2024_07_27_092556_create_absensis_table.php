@@ -16,8 +16,9 @@ return new class extends Migration
             $table->string('code_ticket')->nullable(); // Menambahkan kolom code_ticket
             $table->string('title_ticket')->nullable(); // Menambahkan kolom title_ticket
             $table->string('description');
+            $table->string('extra_desc')->nullable();
             $table->dateTime('mulai_kerja');
-            $table->dateTime('akhir_kerja');
+            $table->dateTime('akhir_kerja')->nullable();
             $table->timestamps();
             
         });
