@@ -6,14 +6,17 @@ use App\Filament\Resources\AbsensiResource\Pages;
 use App\Filament\Resources\AbsensiResource\RelationManagers;
 use App\Models\Absensi;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\NumberInput;
+use Filament\Forms\Components\DateTimePicker;
 class AbsensiResource extends Resource
 {
     protected static ?string $model = Absensi::class;
@@ -23,17 +26,32 @@ class AbsensiResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\DatePicker::make('absen'),
-                //
-            ]);
+        ->schema([
+            TextInput::make('description')
+                ->required()
+                ->maxLength(255),
+            DateTimePicker::make('mulai_kerja')
+                ->required()
+                ->placeholder('Pilih waktu mulai kerja'),
+            DateTimePicker::make('akhir_kerja')
+                ->required()
+                ->placeholder('Pilih waktu akhir kerja'),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                
+                TextColumn::make('id')->sortable(),
+                TextColumn::make('description')->searchable(),
+                TextColumn::make('mulai_kerja')->dateTime(),
+                TextColumn::make('akhir_kerja')->dateTime(),
+                TextColumn::make('total_hours')
+                    ->label('Total Jam Kerja')
+                    ->formatStateUsing(fn ($record) => number_format($record->total_hours, 2)),
+                TextColumn::make('created_at')->dateTime(),
+                TextColumn::make('updated_at')->dateTime(),
             ])
             ->filters([
                 //
